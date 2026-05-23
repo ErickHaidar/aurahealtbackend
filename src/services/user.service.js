@@ -1,5 +1,5 @@
 import { userRepository } from '../repositories/user.repository.js';
-import { uploadToSupabase, validateImageFile, deleteFromSupabase } from '../config/supabase.js';
+import { uploadToSupabase, validateImageFile } from '../config/supabase.js';
 import { env } from '../config/env.js';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -32,7 +32,7 @@ export const userService = {
   },
 
   async uploadAvatar(userId, file) {
-    validateImageFile(file.mimetype, file.size);
+    validateImageFile(file);
 
     const ext = file.mimetype.split('/')[1];
     const path = `${userId}/${uuidv4()}.${ext}`;

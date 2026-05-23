@@ -3,7 +3,7 @@ import { commentRepository } from '../repositories/comment.repository.js';
 import { likeRepository } from '../repositories/like.repository.js';
 import { notificationService } from './notification.service.js';
 import { uploadToSupabase, validateImageFile } from '../config/supabase.js';
-import { safeRedisGet, safeRedisSetex, safeRedisDel, getRedis, isRedisAvailable, REDIS_KEYS } from '../config/redis.js';
+import { safeRedisGet, safeRedisSetex, getRedis, isRedisAvailable, REDIS_KEYS } from '../config/redis.js';
 import { env } from '../config/env.js';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -55,7 +55,7 @@ export const postService = {
     let imageUrl = null;
 
     if (file) {
-      validateImageFile(file.mimetype, file.size);
+      validateImageFile(file);
       const ext = file.mimetype.split('/')[1];
       const path = `${userId}/${uuidv4()}.${ext}`;
       imageUrl = await uploadToSupabase(env.SUPABASE_BUCKET_POSTS, path, file.buffer, file.mimetype);

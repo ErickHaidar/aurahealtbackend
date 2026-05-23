@@ -2,18 +2,14 @@ import { Router } from 'express';
 import multer from 'multer';
 import { userController } from '../controllers/user.controller.js';
 import { authenticate } from '../middlewares/auth.middleware.js';
-import { validate } from '../middlewares/validate.middleware.js';
 import { uploadLimiter } from '../middlewares/rateLimit.middleware.js';
+import { validate } from '../middlewares/validate.middleware.js';
 import { updateProfileSchema } from '../validations/post.validation.js';
 
 const router = Router();
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 1024 * 1024 },
-  fileFilter: (_req, file, cb) => {
-    if (file.mimetype !== 'image/jpeg') return cb(new Error('Hanya file JPEG yang diizinkan'));
-    cb(null, true);
-  },
 });
 
 router.use(authenticate);

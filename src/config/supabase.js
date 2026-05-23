@@ -5,14 +5,30 @@ export const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_KEY,
   auth: { persistSession: false },
 });
 
-const ALLOWED_MIME = ['image/jpeg'];
+const ALLOWED_MIME_PREFIX = 'image/';
+const ALLOWED_IMAGE_EXTENSIONS = new Set([
+  'jpg',
+  'jpeg',
+  'png',
+  'gif',
+  'webp',
+  'bmp',
+  'heic',
+  'heif',
+]);
 const MAX_SIZE_BYTES = 1024 * 1024; // 1MB
 
-export function validateImageFile(mimetype, size) {
-  if (!ALLOWED_MIME.includes(mimetype)) {
-    throw new Error('Hanya file JPEG yang diizinkan');
+export function isAllowedImageFile(file) {
+  const mimetype = file?.mimetype ?? '';
+  const extension = file?.originalname?.split('.').pop()?.toLowerCase();
+  return mimetype.startsWith(ALLOWED_MIME_PREFIX) || ALLOWED_IMAGE_EXTENSIONS.has(extension);
+}
+
+export function validateImageFile(file) {
+  if (!isAllowedImageFile(file)) {
+    throw new Error('Hanya file gambar yang diizinkan');
   }
-  if (size > MAX_SIZE_BYTES) {
+  if (file.size > MAX_SIZE_BYTES) {
     throw new Error('Ukuran file maksimal 1 MB');
   }
 }
