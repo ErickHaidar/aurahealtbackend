@@ -3,7 +3,15 @@ import Parser from 'rss-parser';
 import 'dotenv/config';
 
 const prisma = new PrismaClient();
-const parser = new Parser({ timeout: 10000 });
+const parser = new Parser({
+  timeout: 10000,
+  customFields: {
+    item: [
+      ['media:content', 'media:content', { keepArray: false }],
+      ['media:thumbnail', 'media:thumbnail', { keepArray: false }],
+    ],
+  },
+});
 
 const NEWS_API_KEY = process.env.NEWS_API_KEY;
 const NEWS_API_BASE = 'https://newsapi.org/v2';
@@ -176,13 +184,19 @@ async function fetchFromRss() {
         const summary = sanitizeText(item.contentSnippet || '').substring(0, 200);
         const content = clean || sanitizeText(item.contentSnippet || '');
 
+        const itemImage =
+          item.enclosure?.url ||
+          item['media:content']?.$?.url ||
+          item['media:thumbnail']?.$?.url ||
+          'https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?w=800&q=80';
+
         const inserted = await insertArticle({
           title: item.title.trim(),
           content: (content || summary) + (item.link ? `\n\nSumber: ${item.link}` : ''),
           summary: summary || item.title.substring(0, 150),
           category: source.category,
           author: item.creator || item.author || source.author,
-          imageUrl: 'https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?w=800&q=80',
+          imageUrl: itemImage,
           publishedAt: new Date(item.pubDate || item.isoDate || new Date()),
         });
 
