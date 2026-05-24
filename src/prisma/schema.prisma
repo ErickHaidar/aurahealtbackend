@@ -65,6 +65,7 @@ model EducationContent {
   title       String
   content     String
   category    String
+  sumber      String?
   imageUrl    String?
   order       Int      @default(0)
   createdAt   DateTime @default(now())
