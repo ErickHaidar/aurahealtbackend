@@ -15,6 +15,7 @@ export function getRedis() {
     const useTls = redisUrl.startsWith('rediss://');
 
     redis = new Redis(redisUrl, {
+      family: 0, // auto-detect IPv4/IPv6 (penting untuk endpoint Upstash/tcp6)
       maxRetriesPerRequest: 1,
       retryStrategy(times) {
         if (times > 2) return null; // stop retrying quickly
