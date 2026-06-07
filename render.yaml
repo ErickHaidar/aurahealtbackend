@@ -36,5 +36,7 @@ services:
         value: auto
       - key: AI_GEMINI_MODEL
         value: gemini-flash-lite-latest
+      - key: ALLOWED_ORIGINS
+        value: "*"
       - key: AI_GEMINI_KEY_1
         sync: false
