@@ -12,22 +12,23 @@ export function isRedisAvailable() {
 export function getRedis() {
   if (!redis) {
     const redisUrl = env.REDIS_URL;
-    const useTls = redisUrl.startsWith('rediss://');
 
     redis = new Redis(redisUrl, {
-      family: 0, // auto-detect IPv4/IPv6 (penting untuk endpoint Upstash/tcp6)
+      family: 0,
       maxRetriesPerRequest: 1,
       retryStrategy(times) {
-        if (times > 2) return null; // stop retrying quickly
+        if (times > 2) return null;
         return Math.min(times * 500, 1000);
       },
       lazyConnect: true,
-      enableOfflineQueue: false,
-      ...(useTls && { tls: { rejectUnauthorized: false } }),
+      enableOfflineQueue: false
     });
 
     redis.on('connect', () => { redisAvailable = true; logger.info('Redis connected'); });
-    redis.on('error', (err) => { redisAvailable = false; logger.error('Redis error:', err.message); });
+    redis.on('error', (err) => { 
+      redisAvailable = false; 
+      logger.error(`Redis error: ${err.message || JSON.stringify(err)}`); 
+    });
     redis.on('close', () => { redisAvailable = false; logger.warn('Redis connection closed'); });
   }
   return redis;
