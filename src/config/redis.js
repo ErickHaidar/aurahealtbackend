@@ -11,7 +11,10 @@ export function isRedisAvailable() {
 
 export function getRedis() {
   if (!redis) {
-    redis = new Redis(env.REDIS_URL, {
+    const redisUrl = env.REDIS_URL;
+    const useTls = redisUrl.startsWith('rediss://');
+
+    redis = new Redis(redisUrl, {
       maxRetriesPerRequest: 1,
       retryStrategy(times) {
         if (times > 2) return null; // stop retrying quickly
@@ -19,6 +22,7 @@ export function getRedis() {
       },
       lazyConnect: true,
       enableOfflineQueue: false,
+      ...(useTls && { tls: { rejectUnauthorized: false } }),
     });
 
     redis.on('connect', () => { redisAvailable = true; logger.info('Redis connected'); });
