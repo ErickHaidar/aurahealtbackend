@@ -12,16 +12,18 @@ export function isRedisAvailable() {
 export function getRedis() {
   if (!redis) {
     const redisUrl = env.REDIS_URL;
+    const useTls = redisUrl.startsWith('rediss://');
 
     redis = new Redis(redisUrl, {
-      family: 0,
       maxRetriesPerRequest: 1,
+      connectTimeout: 5000,
       retryStrategy(times) {
         if (times > 2) return null;
         return Math.min(times * 500, 1000);
       },
       lazyConnect: true,
-      enableOfflineQueue: false
+      enableOfflineQueue: false,
+      ...(useTls ? { tls: { rejectUnauthorized: false } } : {}),
     });
 
     redis.on('connect', () => { redisAvailable = true; logger.info('Redis connected'); });
